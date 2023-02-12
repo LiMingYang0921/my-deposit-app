@@ -1,59 +1,48 @@
 <script lang="ts">
-import { ref } from 'vue'
+import Layout from './layout/Layout.vue'
+import { ref, defineComponent } from 'vue'
 
-export default {
-  setup() {
-    const username = ref('')
-    const password = ref('')
-    const onSubmit = (values: string) => {
-      console.log('submit', values)
-    }
 
-    return {
-      username,
-      password,
-      onSubmit
-    }
+export default defineComponent({
+  components: { Layout },
+
+  setup () {
+    const width = ref(document.documentElement.clientWidth || document.body.clientWidth)
+    const isPhone = ref(false)
+    const noShowIframe = ref(isPhone.value || width.value <= 750)
+
+    const info = navigator.userAgent
+    isPhone.value = /mobile/i.test(info)
+
+    const src = ref(`${window.location.protocol}//${window.location.host}/index.html`)
+
+    return { noShowIframe, src }
   }
-}
+})
 </script>
 
 <template>
-  <van-form @submit="onSubmit">
-    <van-cell-group inset>
-      <van-field
-        v-model="username"
-        name="用户名"
-        label="用户名"
-        placeholder="用户名"
-        :rules="[{ required: true, message: '请填写用户名' }]"
-      />
-      <van-field
-        v-model="password"
-        type="password"
-        name="密码"
-        label="密码"
-        placeholder="密码"
-        :rules="[{ required: true, message: '请填写密码' }]"
-      />
-    </van-cell-group>
-    <div style="margin: 16px">
-      <van-button round block type="primary" native-type="submit">
-        提交
-      </van-button>
+  <div id="app_box">
+    <div v-if="noShowIframe" id="box" :style="{width: noShowIframe? '100vw' : '800px'}">
+      <Layout />
     </div>
-  </van-form>
+    <div v-else style="width: 750px;">
+      <iframe style="width: 750px; height: 100vh;" :src="src" />
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
-.a {
-  width: 200px;
-  height: 200px;
-  background: red;
-  .b {
-    width: 100px;
-    height: 100px;
-    background: rgb(75, 46, 46);
+#app_box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  #box{
+    overflow: hidden;
+    height: 100vh;
   }
 }
 </style>
